@@ -1,6 +1,60 @@
 # Registro de Desarrollo - Calculadora de Autopartes
 
-## 📅 Estado Actual: 06 de Noviembre, 2026 (Séptima Etapa: Incorporación de Columna id_pieza en Cotizaciones_acidentalidad)
+## 📅 Estado Actual: 06 de Noviembre, 2026 (Undécima Etapa: Saneamiento de Código para Producción y Git)
+
+### ✅ Hitos Completados
+1. **Eliminación Total de Usuarios Semilla y Credenciales en Código (`views.py`)**:
+   - Se removió la función `asegurar_usuario_pruebas()` y todas las credenciales de prueba (`PruebaCotizaciones`, contraseñas y cédulas en texto plano) del código fuente.
+   - Se eliminaron los usuarios de prueba estáticos de `inicializar_cotizaciones_semilla()` (`natalia_ospina`, `carlos_mendoza`) y las cotizaciones simuladas (`COT-1001`, `1002`, `1003`). La rutina ahora solo valida la estructura de la base de datos (`asegurar_columna_id_pieza()`).
+   - Se limpió la función `obtener_usuario_activo(request)`, retornando únicamente la sesión autenticada (`request.user`) sin crear colaboradores provisionales ficticios.
+2. **Seguridad y Control de Acceso Estándar**:
+   - Se eliminaron nombres de usuario hardcodeados en el control de acceso (`puede_editar` en `lista_cotizaciones`), delegando la autorización a los roles nativos de Django (`is_superuser`, `is_staff` y el permiso `calculator.can_edit_cotizacion`).
+   - El sistema de autenticación (`login_view`) opera de forma 100% dinámica contra la base de datos corporativa MySQL (`PerfilUsuario`), garantizando que el repositorio Git sea seguro para ser publicado o desplegado en producción.
+
+---
+
+## 📅 Hitos Previos: 06 de Noviembre, 2026 (Décima Etapa: Soporte de Autenticación Corporativa y Pruebas)
+
+## 📅 Hitos Previos: 06 de Noviembre, 2026 (Novena Etapa: Header Responsivo con Menú Hamburguesa y Drawer Móvil)
+
+### ✅ Hitos Completados
+1. **Navegación Responsiva Adaptativa (`base.html`)**:
+   - En pantallas de escritorio ($\ge 860\text{px}$): se preserva la barra de navegación horizontal espaciosa con el logo, enlaces superiores (`Inicio`, `Cotizaciones`, `Calculadora`), y ficha de colaborador (`Avatar`, `Nombre` y botón `Salir ➔`).
+   - En pantallas móviles y tablets ($< 860\text{px}$): la barra horizontal se oculta limpiamente y emerge un botón de **menú hamburguesa** interactivo (`☰`), diseñado con micro-animaciones fluidas al abrirse y cerrarse.
+2. **Panel Desplegable Off-Canvas (Drawer Móvil)**:
+   - Se diseñó un panel lateral derecho suave con sombra profunda y fondo difuminado (*backdrop glassmorphism*).
+   - **Ficha del Usuario**: Muestra el avatar con inicial en verde esmeralda, nombre completo institucional y número de cédula/correo.
+   - **Botonera Táctil**: Enlaces verticales con iconos vectoriales SVG para `Inicio`, `Historial Cotizaciones` y `Calculadora de Autopartes` (destacada en verde suave).
+   - **Acción Rápida de Salida**: Botón inferior prominente `Cerrar Sesión` para desconexión rápida y segura en móviles.
+3. **Controlador Interactivo Vanilla JS**:
+   - Apertura y cierre instantáneos al tocar el botón hamburguesa o la cruz de cierre (✕).
+   - Cierre automático al tocar el fondo oscurecido (backdrop), al presionar la tecla `Escape` o al redimensionar la ventana a modo escritorio.
+   - Bloqueo dinámico del scroll del cuerpo (`document.body.style.overflow = 'hidden'`) mientras el menú está abierto para evitar saltos o desplazamientos indeseados en pantallas táctiles.
+
+---
+
+## 📅 Hitos Previos: 06 de Noviembre, 2026 (Octava Etapa: Autenticación Obligatoria y Entrada Prioritaria al Login)
+
+### ✅ Hitos Completados
+1. **Flujo de Entrada Prioritaria al Login (`views.home` y `urls.py`)**:
+   - Se configuró la vista raíz `home` para comprobar el estado de sesión del usuario (`request.user.is_authenticated`). Si no ha iniciado sesión, se realiza una redirección inmediata hacia la pantalla de autenticación corporativa (`/login/`), asegurando que el portal de login sea lo primero que se muestre al ingresar a la plataforma.
+2. **Protección Integral de Vistas con `@login_required`**:
+   - Se protegieron todas las vistas operativas de la plataforma mediante el decorador `@login_required(login_url='calculator:login')`:
+     - `index` (`/calculadora/`): Calculadora interactiva y diagramas de carrocería.
+     - `lista_cotizaciones` (`/cotizaciones/`): Historial y auditoría de cotizaciones.
+     - `guardar_cotizacion` (`/cotizaciones/guardar/`): Persistencia de cotizaciones en MySQL.
+     - `eliminar_cotizacion` (`/cotizaciones/<pk>/eliminar/`): Eliminación de registros.
+     - `get_part_price` (`/api/get-price/`): Consulta de precios y stock.
+     - `api_buscar_vehiculo` (`/api/vehiculos/buscar/`): Búsqueda de flota vehicular.
+3. **Redirección Contextual Post-Autenticación**:
+   - En `login_view`, se respeta el parámetro `next` para que si un usuario intentó ingresar directamente a una ruta protegida (por ejemplo `/cotizaciones/`), el sistema lo conduzca de vuelta allí inmediatamente después de ingresar su correo y cédula válidos. Si ingresó por la raíz, es redirigido al `home`.
+4. **Cierre de Sesión y Control de Acceso**:
+   - El logout (`/logout/`) finaliza la sesión activa del usuario y lo regresa al portal de autenticación.
+   - Si un usuario autenticado intenta acceder a `/login/`, es redirigido de inmediato al `home` sin volver a solicitar credenciales.
+
+---
+
+## 📅 Hitos Previos: 06 de Noviembre, 2026 (Séptima Etapa: Incorporación de Columna id_pieza en Cotizaciones_acidentalidad)
 
 ### ✅ Hitos Completados
 1. **Modelo y Persistencia Relacional (`models.py` y Migración 0002)**:
@@ -16,10 +70,10 @@
 4. **Sincronización Reactiva en Frontend (`index.html` y `app.js`)**:
    - En `index.html`: se incorporó el input oculto `<input type="hidden" name="id_pieza" id="formIdPieza" />` dentro de `formGuardarCotizacion`.
    - En `app.js` (`renderCart`): se sincroniza reactivamente `#formIdPieza` con las referencias únicas de las piezas agregadas al carrito (ej. `RCEX0174, NCEX0021`). Se limpia automáticamente al vaciar el carrito y se restaura al editar una cotización.
-5. **Visualización y Búsqueda Dinámica en Historial (`lista_cotizaciones.html`)**:
-   - Cada tarjeta (`.quote-card`) incluye el atributo `data-id-pieza="{{ cotizacion.id_pieza }}"`.
-   - Se muestra un badge visual con la referencia: `🔧 Ref: {{ cotizacion.id_pieza }}` en la fila de datos del móvil.
-   - Se actualizó el motor de búsqueda en tiempo real `filterCards()` para que el usuario pueda filtrar al instante por código o referencia de pieza.
+5. **Visualización Limpia y Búsqueda Dinámica en Historial (`lista_cotizaciones.html`)**:
+   - Cada tarjeta (`.quote-card`) incluye internamente el atributo `data-id-pieza="{{ cotizacion.id_pieza }}"`.
+   - Se removió la insignia visual de referencias de la superficie de la tarjeta para mantener una visual limpia y evitar saturación en cotizaciones múltiples, dejando únicamente el identificador del móvil (`🚌 [número]`).
+   - El buscador en tiempo real `filterCards()` mantiene la capacidad de buscar por código de pieza a través del atributo `data-id-pieza`.
 
 ---
 

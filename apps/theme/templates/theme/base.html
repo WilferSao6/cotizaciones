@@ -17,53 +17,415 @@
 
 <body>
     {% block header %}
-    <header style="
-        background: #ffffff;
-        border-bottom: 1px solid #e4e6ef;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    ">
-        <div class="container"
-            style="padding-top: 14px; padding-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
-            <!-- Logo institucional SAO6 -->
-            <a href="{% url 'calculator:home' %}" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="Logo SAO6" style="height: 34px; width: auto; object-fit: contain; border-radius: 6px;" />
-                <h1 class="titulo-principal"
-                    style="margin: 0; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; color: var(--color-texto-dark);">
-                    SAO6<span style="color: var(--color-primario);">Calc</span>
+    <style>
+        /* ==========================================================================
+           BARRA DE NAVEGACIÓN CORPORATIVA RESPONSIVA (SAO6Calc)
+           ========================================================================== */
+        .main-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e4e6ef;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-inner {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-logo-img {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--color-texto-dark);
+        }
+
+        .brand-title span {
+            color: var(--color-primario);
+        }
+
+        /* ── Navegación Desktop ──────────────────────────── */
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .desktop-nav-link {
+            text-decoration: none;
+            color: var(--color-texto-grey);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            padding: 6px 4px;
+            transition: color 0.2s ease;
+        }
+
+        .desktop-nav-link:hover {
+            color: var(--color-texto-dark);
+        }
+
+        .desktop-calc-pill {
+            display: inline-block;
+            text-decoration: none;
+            background: var(--color-primario-soft);
+            color: var(--color-primario);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .desktop-calc-pill:hover {
+            background: rgba(0, 200, 81, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .desktop-user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 8px;
+            padding-left: 14px;
+            border-left: 1.5px solid #e2e8f0;
+        }
+
+        .user-avatar-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e8f5e9;
+            color: var(--color-primario);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 800;
+            border: 1.5px solid #c8e6c9;
+            flex-shrink: 0;
+        }
+
+        .user-name-text {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #1e293b;
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-logout {
+            text-decoration: none;
+            color: #dc2626;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-logout:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        /* ── Botón Hamburguesa Móvil ─────────────────────── */
+        .hamburger-btn {
+            display: none;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            width: 42px;
+            height: 42px;
+            padding: 9px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .hamburger-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .hamburger-line {
+            width: 22px;
+            height: 2.2px;
+            background-color: #1e293b;
+            border-radius: 2px;
+            transition: all 0.25s ease;
+        }
+
+        .hamburger-btn.is-active .hamburger-line:nth-child(1) {
+            transform: translateY(7.2px) rotate(45deg);
+        }
+
+        .hamburger-btn.is-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .hamburger-btn.is-active .hamburger-line:nth-child(3) {
+            transform: translateY(-7.2px) rotate(-45deg);
+        }
+
+        /* ── Backdrop / Sombra Fondo Móvil ───────────────── */
+        .mobile-menu-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .mobile-menu-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ── Panel Lateral (Drawer Móvil) ────────────────── */
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 310px;
+            max-width: 86vw;
+            background: #ffffff;
+            z-index: 1060;
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.18);
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .mobile-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fafbfc;
+        }
+
+        .drawer-close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #475569;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1;
+            transition: all 0.15s ease;
+        }
+
+        .drawer-close-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .drawer-user-card {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drawer-user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e8f5e9;
+            color: var(--color-primario);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: 2px solid #a5d6a7;
+            flex-shrink: 0;
+        }
+
+        .drawer-user-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--color-texto-dark);
+            line-height: 1.25;
+        }
+
+        .drawer-user-meta {
+            font-size: 0.74rem;
+            color: var(--color-texto-grey);
+            font-weight: 500;
+            margin-top: 3px;
+        }
+
+        .drawer-links-group {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .drawer-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.92rem;
+            transition: all 0.15s ease;
+        }
+
+        .drawer-nav-item:hover {
+            background: #f1f5f9;
+            color: var(--color-texto-dark);
+            transform: translateX(3px);
+        }
+
+        .drawer-nav-item.highlight-item {
+            background: rgba(0, 200, 81, 0.09);
+            color: #007a31;
+            font-weight: 700;
+        }
+
+        .drawer-nav-item.highlight-item:hover {
+            background: rgba(0, 200, 81, 0.16);
+        }
+
+        .drawer-icon-wrap {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .drawer-footer {
+            padding: 18px 20px;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+        }
+
+        .btn-drawer-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 16px;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-drawer-logout:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* ── Punto de Quiebre Responsive ────────────────── */
+        @media (max-width: 860px) {
+            .desktop-nav {
+                display: none !important;
+            }
+
+            .hamburger-btn {
+                display: flex !important;
+            }
+        }
+    </style>
+
+    <header class="main-header">
+        <div class="container header-inner">
+            <!-- 1. Logo Institucional SAO6 -->
+            <a href="{% url 'calculator:home' %}" class="brand-logo-link">
+                <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="Logo SAO6" class="brand-logo-img" />
+                <h1 class="brand-title">
+                    SAO6<span>Calc</span>
                 </h1>
             </a>
-            <nav style="display: flex; align-items: center; gap: 18px;">
-                <a href="{% url 'calculator:home' %}"
-                    style="text-decoration: none; color: var(--color-texto-grey); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.02em; text-transform: uppercase;">Inicio</a>
-                <a href="{% url 'calculator:lista_cotizaciones' %}"
-                    style="text-decoration: none; color: var(--color-texto-grey); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.02em; text-transform: uppercase;">Cotizaciones</a>
-                <a href="{% url 'calculator:index' %}" style="
-                    display: inline-block;
-                    text-decoration: none;
-                    background: var(--color-primario-soft);
-                    color: var(--color-primario);
-                    font-size: 0.75rem;
-                    font-weight: 700;
-                    letter-spacing: 0.06em;
-                    text-transform: uppercase;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    transition: background 0.2s;
-                ">Calculadora</a>
+
+            <!-- 2. Menú de Navegación Desktop (Pantallas >= 860px) -->
+            <nav class="desktop-nav">
+                <a href="{% url 'calculator:home' %}" class="desktop-nav-link">Inicio</a>
+                <a href="{% url 'calculator:lista_cotizaciones' %}" class="desktop-nav-link">Cotizaciones</a>
+                <a href="{% url 'calculator:index' %}" class="desktop-calc-pill">Calculadora</a>
 
                 {% if user.is_authenticated %}
-                <div style="display: flex; align-items: center; gap: 10px; margin-left: 8px; padding-left: 14px; border-left: 1.5px solid #e2e8f0;">
+                <div class="desktop-user-box">
                     <div style="display: flex; align-items: center; gap: 7px;">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #e8f5e9; color: var(--color-primario); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; border: 1.5px solid #c8e6c9;">
+                        <div class="user-avatar-circle">
                             {{ user.perfil.nombre|default:user.username|slice:":1"|upper }}
                         </div>
-                        <span style="font-size: 0.82rem; font-weight: 600; color: #1e293b;" title="CC: {{ user.perfil.cedula|default:'N/A' }}">
+                        <span class="user-name-text" title="CC: {{ user.perfil.cedula|default:'N/A' }}">
                             {{ user.perfil.nombre|default:user.get_full_name|default:user.username }}
                         </span>
                     </div>
-                    <a href="{% url 'calculator:logout' %}" style="text-decoration: none; color: #dc2626; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 6px; background: #fef2f2; border: 1px solid #fecaca; transition: all 0.2s;" title="Cerrar sesión">
+                    <a href="{% url 'calculator:logout' %}" class="btn-logout" title="Cerrar sesión">
                         Salir ➔
                     </a>
                 </div>
@@ -88,8 +450,112 @@
                 </a>
                 {% endif %}
             </nav>
+
+            <!-- 3. Botón Menú Hamburguesa (Pantallas < 860px) -->
+            <button type="button" class="hamburger-btn" id="btnHamburgerToggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
     </header>
+
+    <!-- 4. Backdrop Oscuro con Desenfoque para Móvil -->
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+
+    <!-- 5. Panel Lateral Móvil (Off-Canvas Drawer) -->
+    <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+        <div class="drawer-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="Logo SAO6" style="height: 24px; width: auto;" />
+                <span style="font-weight: 800; font-size: 0.95rem; color: var(--color-texto-dark);">
+                    SAO6<span style="color: var(--color-primario);">Calc</span>
+                </span>
+            </div>
+            <button type="button" class="drawer-close-btn" id="btnDrawerClose" aria-label="Cerrar menú">
+                &times;
+            </button>
+        </div>
+
+        {% if user.is_authenticated %}
+        <!-- Tarjeta del Colaborador -->
+        <div class="drawer-user-card">
+            <div class="drawer-user-avatar">
+                {{ user.perfil.nombre|default:user.username|slice:":1"|upper }}
+            </div>
+            <div style="overflow: hidden;">
+                <div class="drawer-user-name">
+                    {{ user.perfil.nombre|default:user.get_full_name|default:user.username }}
+                </div>
+                <div class="drawer-user-meta">
+                    {% if user.perfil.cedula %}CC: {{ user.perfil.cedula }}{% else %}{{ user.email }}{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Enlaces de Navegación Móvil -->
+        <div class="drawer-links-group">
+            <a href="{% url 'calculator:home' %}" class="drawer-nav-item">
+                <span class="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </span>
+                <span>Inicio</span>
+            </a>
+
+            <a href="{% url 'calculator:lista_cotizaciones' %}" class="drawer-nav-item">
+                <span class="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </span>
+                <span>Historial Cotizaciones</span>
+            </a>
+
+            <a href="{% url 'calculator:index' %}" class="drawer-nav-item highlight-item">
+                <span class="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="16" y1="14" x2="16" y2="18"/>
+                        <path d="M16 10h.01"/>
+                        <path d="M12 10h.01"/>
+                        <path d="M8 10h.01"/>
+                        <path d="M12 14h.01"/>
+                        <path d="M8 14h.01"/>
+                        <path d="M12 18h.01"/>
+                        <path d="M8 18h.01"/>
+                    </svg>
+                </span>
+                <span>Calculadora de Autopartes</span>
+            </a>
+        </div>
+
+        <!-- Footer del Drawer Móvil -->
+        <div class="drawer-footer">
+            {% if user.is_authenticated %}
+            <a href="{% url 'calculator:logout' %}" class="btn-drawer-logout">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Cerrar Sesión</span>
+            </a>
+            {% else %}
+            <a href="{% url 'calculator:login' %}" class="boton-premium" style="width: 100%;">
+                Acceder al Sistema
+            </a>
+            {% endif %}
+        </div>
+    </aside>
     {% endblock header %}
 
     <main class="container">
@@ -111,7 +577,7 @@
         </div>
     </div>
 
-    <!-- Scripts Premium -->
+    <!-- Scripts Base y Controlador de Menú Hamburguesa -->
     <script>
         function openModal(title, desc, price) {
             document.getElementById('modalTitle').innerText = title;
@@ -123,6 +589,65 @@
         function closeModal() {
             document.getElementById('partModal').classList.remove('active');
         }
+
+        // ── Controlador Interactivo del Menú Hamburguesa Responsivo ───
+        (function initResponsiveMenu() {
+            const btnToggle = document.getElementById('btnHamburgerToggle');
+            const btnClose = document.getElementById('btnDrawerClose');
+            const backdrop = document.getElementById('mobileMenuBackdrop');
+            const drawer = document.getElementById('mobileDrawer');
+
+            if (!btnToggle || !drawer) return;
+
+            function openDrawer() {
+                drawer.classList.add('open');
+                if (backdrop) backdrop.classList.add('open');
+                btnToggle.classList.add('is-active');
+                btnToggle.setAttribute('aria-expanded', 'true');
+                drawer.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeDrawer() {
+                drawer.classList.remove('open');
+                if (backdrop) backdrop.classList.remove('open');
+                btnToggle.classList.remove('is-active');
+                btnToggle.setAttribute('aria-expanded', 'false');
+                drawer.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            btnToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (drawer.classList.contains('open')) {
+                    closeDrawer();
+                } else {
+                    openDrawer();
+                }
+            });
+
+            if (btnClose) {
+                btnClose.addEventListener('click', closeDrawer);
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener('click', closeDrawer);
+            }
+
+            // Cerrar al pulsar Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && drawer.classList.contains('open')) {
+                    closeDrawer();
+                }
+            });
+
+            // Cerrar menú si la pantalla se redimensiona a escritorio
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 860 && drawer.classList.contains('open')) {
+                    closeDrawer();
+                }
+            });
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

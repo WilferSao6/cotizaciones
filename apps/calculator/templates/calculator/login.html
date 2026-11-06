@@ -201,6 +201,7 @@
             opacity: 0;
             transform: translateY(-6px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -278,7 +279,7 @@
         box-shadow: 0 0 0 4px rgba(0, 200, 81, 0.12);
     }
 
-    .input-wrapper-custom input:focus + .input-icon-box,
+    .input-wrapper-custom input:focus+.input-icon-box,
     .input-wrapper-custom:focus-within .input-icon-box {
         color: #00c851;
     }
@@ -355,12 +356,13 @@
 
 <div class="login-viewport">
     <div class="login-card" id="loginCard">
-        
+
         <!-- ── LADO IZQUIERDO: BRANDING INSTITUCIONAL SAO6 ───────────────── -->
         <div class="login-brand-panel">
             <div class="brand-header-badge">
                 <div class="brand-logo-wrap">
-                    <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="SAO6 S.A.S." onerror="this.src='/static/assets/logo_sao6.png.ico'">
+                    <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="SAO6 S.A.S."
+                        onerror="this.src='/static/assets/logo_sao6.png.ico'">
                 </div>
                 <div>
                     <div class="brand-name">SAO6<span>Calc</span></div>
@@ -379,7 +381,8 @@
             {% if error_mensaje %}
             <div class="login-error-alert" id="loginAlertBox" role="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <span>{{ error_mensaje }}</span>
             </div>
@@ -394,19 +397,14 @@
                     <label for="inputCorreo" class="form-label-custom">Correo Institucional</label>
                     <div class="input-wrapper-custom">
                         <span class="input-icon-box">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </span>
-                        <input 
-                            type="email" 
-                            name="correo" 
-                            id="inputCorreo" 
-                            placeholder="ejemplo: natalia.ospina@sao6.com.co" 
-                            required 
-                            autofocus 
-                            autocomplete="email"
-                        />
+                        <input type="email" name="correo" id="inputCorreo" placeholder="" required autofocus
+                            autocomplete="email" />
                     </div>
                     <div class="input-hint-text">Dirección de correo electrónico asociada a tu perfil en SAO6.</div>
                 </div>
@@ -416,19 +414,14 @@
                     <label for="inputCedula" class="form-label-custom">Número de Cédula</label>
                     <div class="input-wrapper-custom">
                         <span class="input-icon-box">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                             </svg>
                         </span>
-                        <input 
-                            type="text" 
-                            name="cedula" 
-                            id="inputCedula" 
-                            placeholder="ejemplo: 1020304050" 
-                            required 
-                            inputmode="numeric"
-                            autocomplete="username"
-                        />
+                        <input type="text" name="cedula" id="inputCedula" placeholder="" required inputmode="numeric"
+                            autocomplete="username" />
                     </div>
                     <div class="input-hint-text">Documento de identidad nacional sin puntos ni guiones.</div>
                 </div>
@@ -436,8 +429,10 @@
                 <!-- Botón de Envío -->
                 <button type="submit" class="btn-submit-login" id="btnSubmitLogin">
                     <span>Ingresar al Sistema</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                 </button>
             </form>

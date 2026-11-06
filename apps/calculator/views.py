@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.db.models import Max, Q
 
@@ -73,116 +74,18 @@ def asegurar_columna_id_pieza():
 
 def obtener_usuario_activo(request):
     """
-    Retorna el usuario autenticado o uno por defecto para entorno local,
-    asegurando la existencia de su PerfilUsuario corporativo.
+    Retorna el usuario autenticado en la sesión activa.
     """
     if request.user.is_authenticated:
         return request.user
-
-    # Usuario de fallback para desarrollo local sin login forzado
-    user, created = User.objects.get_or_create(
-        username='natalia_ospina',
-        defaults={
-            'first_name': 'Natalia',
-            'last_name': 'Ospina',
-            'email': 'natalia.ospina@sao6.com.co',
-            'is_active': True,
-        }
-    )
-    if created or not hasattr(user, 'perfil') or not user.perfil:
-        PerfilUsuario.objects.get_or_create(
-            user=user,
-            defaults={
-                'nombre': 'Natalia Ospina',
-                'cedula': '1020304050',
-                'correo': 'natalia.ospina@sao6.com.co',
-            }
-        )
-    return user
+    return None
 
 
 def inicializar_cotizaciones_semilla():
     """
-    Inserta las cotizaciones históricas de prueba en MySQL si la tabla
-    Cotizaciones_acidentalidad se encuentra vacía.
+    Asegura la estructura relacional de la tabla Cotizaciones_acidentalidad en MySQL.
     """
     asegurar_columna_id_pieza()
-    if not CotizacionAccidentalidad.objects.exists():
-        user_natalia, _ = User.objects.get_or_create(
-            username='natalia_ospina',
-            defaults={
-                'first_name': 'Natalia',
-                'last_name': 'Ospina',
-                'email': 'natalia.ospina@sao6.com.co',
-                'is_active': True,
-            }
-        )
-        if not hasattr(user_natalia, 'perfil') or not user_natalia.perfil:
-            PerfilUsuario.objects.get_or_create(
-                user=user_natalia,
-                defaults={
-                    'nombre': 'Natalia Ospina',
-                    'cedula': '1020304050',
-                    'correo': 'natalia.ospina@sao6.com.co',
-                }
-            )
-
-        user_carlos, _ = User.objects.get_or_create(
-            username='carlos_mendoza',
-            defaults={
-                'first_name': 'Carlos',
-                'last_name': 'Mendoza',
-                'email': 'carlos.mendoza@sao6.com.co',
-                'is_active': True,
-            }
-        )
-        if not hasattr(user_carlos, 'perfil') or not user_carlos.perfil:
-            PerfilUsuario.objects.get_or_create(
-                user=user_carlos,
-                defaults={
-                    'nombre': 'Carlos Mendoza',
-                    'cedula': '1030405060',
-                    'correo': 'carlos.mendoza@sao6.com.co',
-                }
-            )
-
-        now = timezone.now()
-
-        CotizacionAccidentalidad.objects.create(
-            id_cotizacion=1001,
-            usuario_creador=user_natalia,
-            tipologia='Runner',
-            numero_bus='BUS-045',
-            pieza='Bómper Delantero / Capó',
-            valor_pieza=Decimal('1850000.00'),
-            valor_pieza_editada=None,
-            usuario_editor=None,
-            timestamp_editor=None,
-        )
-
-        CotizacionAccidentalidad.objects.create(
-            id_cotizacion=1002,
-            usuario_creador=user_natalia,
-            tipologia='NPR',
-            numero_bus='BUS-112',
-            pieza='Puerta Lateral Derecha',
-            valor_pieza=Decimal('4200000.00'),
-            valor_pieza_editada=Decimal('4500000.00'),
-            usuario_editor='admin_taller',
-            timestamp_editor=now,
-        )
-
-        CotizacionAccidentalidad.objects.create(
-            id_cotizacion=1003,
-            usuario_creador=user_carlos,
-            tipologia='Agrale',
-            numero_bus='BUS-089',
-            pieza='Conjunto Óptico / Farola',
-            valor_pieza=Decimal('3150000.00'),
-            valor_pieza_editada=None,
-            usuario_editor=None,
-            timestamp_editor=None,
-        )
 
 
 def extraer_detalle_piezas(pieza_campo):
@@ -205,10 +108,15 @@ def extraer_detalle_piezas(pieza_campo):
 def home(request):
     """
     Renderiza la página de inicio de la aplicación.
+    Si el usuario no ha iniciado sesión, lo redirige inmediatamente
+    a la pantalla de Login corporativo.
     """
+    if not request.user.is_authenticated:
+        return redirect('calculator:login')
     return render(request, 'calculator/home.html')
 
 
+@login_required(login_url='calculator:login')
 def index(request):
     """
     Renderiza la vista principal de la calculadora de autopartes.
@@ -256,6 +164,7 @@ def index(request):
     return render(request, 'calculator/index.html', context)
 
 
+@login_required(login_url='calculator:login')
 def get_part_price(request):
     """
     Consulta descripción y costo unitario de una pieza a partir de su referencia.
@@ -329,6 +238,7 @@ def get_part_price(request):
 
 
 @require_POST
+@login_required(login_url='calculator:login')
 def guardar_cotizacion(request):
     """
     Procesa la petición POST del formulario y almacena o actualiza la cotización
@@ -454,6 +364,7 @@ def guardar_cotizacion(request):
     return redirect('calculator:lista_cotizaciones')
 
 
+@login_required(login_url='calculator:login')
 def lista_cotizaciones(request):
     """
     Vista para listar las cotizaciones registradas en la Calculadora de Autopartes.
@@ -517,11 +428,9 @@ def lista_cotizaciones(request):
     if request.user.is_authenticated:
         puede_editar = (
             request.user.is_superuser
+            or request.user.is_staff
             or request.user.has_perm('calculator.can_edit_cotizacion')
-            or request.user.username.lower() in ['natalia_ospina', 'admin']
         )
-    else:
-        puede_editar = True
 
     context = {
         'cotizaciones': cotizaciones,
@@ -532,6 +441,7 @@ def lista_cotizaciones(request):
 
 
 @require_POST
+@login_required(login_url='calculator:login')
 def eliminar_cotizacion(request, pk):
     """
     Elimina físicamente una cotización de la tabla Cotizaciones_acidentalidad en MySQL.
@@ -572,6 +482,12 @@ def login_view(request):
                 Q(cedula=cedula) | Q(cedula=cedula_limpia)
             ).first()
 
+            # Soporte dual: verificar si introdujo la contraseña del usuario en lugar de la cédula
+            if not perfil:
+                user_match = User.objects.filter(email__iexact=correo).first() or User.objects.filter(username__iexact=correo).first()
+                if user_match and user_match.check_password(cedula) and hasattr(user_match, 'perfil') and user_match.perfil:
+                    perfil = user_match.perfil
+
             if perfil:
                 user = perfil.user
                 if not user.is_active:
@@ -584,7 +500,7 @@ def login_view(request):
                     perfil.hora_inicio_sesion = timezone.now()
                     perfil.save(update_fields=['hora_inicio_sesion'])
 
-                    if next_url and next_url.startswith('/'):
+                    if next_url and next_url.startswith('/') and next_url not in ('/login/', '/logout/'):
                         return redirect(next_url)
                     return redirect('calculator:home')
             else:
@@ -602,6 +518,7 @@ def logout_view(request):
     return redirect('calculator:login')
 
 
+@login_required(login_url='calculator:login')
 def api_buscar_vehiculo(request):
     """
     Endpoint JSON para consultar el vehículo y su línea desde vehiculo.xlsx.
