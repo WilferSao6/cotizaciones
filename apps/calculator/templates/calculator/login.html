@@ -1,0 +1,448 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión — SAO6Calc Portal Corporativo{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Contenedor General de Autenticación ───────────────────────────── */
+    .login-viewport {
+        min-height: calc(100vh - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 15px;
+        position: relative;
+    }
+
+    /* Fondo ambiental sutil con gradientes dinámicos */
+    .login-ambient-glow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .ambient-circle-1 {
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 200, 81, 0.12) 0%, rgba(0, 200, 81, 0) 70%);
+        top: -120px;
+        right: -100px;
+        filter: blur(40px);
+    }
+
+    .ambient-circle-2 {
+        position: absolute;
+        width: 480px;
+        height: 480px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14, 116, 144, 0.10) 0%, rgba(14, 116, 144, 0) 70%);
+        bottom: -100px;
+        left: -100px;
+        filter: blur(50px);
+    }
+
+    /* ── Tarjeta Principal de Inicio de Sesión ─────────────────────────── */
+    .login-card {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        max-width: 840px;
+        background: #ffffff;
+        border-radius: 24px;
+        display: grid;
+        grid-template-columns: 0.95fr 1.15fr;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* ── Columna Izquierda: Showcase Corporativo SAO6 (Verde Institucional) ── */
+    .login-brand-panel {
+        background: linear-gradient(155deg, #00c851 0%, #00a844 50%, #007a32 100%);
+        padding: 50px 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-brand-panel::before {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, transparent 70%);
+        top: -40px;
+        left: -40px;
+        filter: blur(25px);
+        pointer-events: none;
+    }
+
+    .login-brand-panel::after {
+        content: '';
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 0, 0, 0.12) 0%, transparent 70%);
+        bottom: -50px;
+        right: -50px;
+        filter: blur(20px);
+        pointer-events: none;
+    }
+
+    .brand-header-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .brand-logo-wrap {
+        width: 76px;
+        height: 76px;
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 14px 32px rgba(0, 60, 20, 0.28);
+    }
+
+    .brand-logo-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .brand-name {
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 60, 20, 0.25);
+    }
+
+    .brand-name span {
+        color: #dcfce7;
+    }
+
+    .brand-sub {
+        font-size: 0.74rem;
+        color: rgba(255, 255, 255, 0.92);
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-top: 5px;
+        text-shadow: 0 1px 4px rgba(0, 60, 20, 0.2);
+    }
+
+    /* ── Columna Derecha: Formulario de Autenticación ──────────────────── */
+    .login-form-panel {
+        padding: 52px 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #ffffff;
+    }
+
+    .form-header-box {
+        margin-bottom: 28px;
+    }
+
+    .form-main-title {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+    }
+
+    .form-main-sub {
+        font-size: 0.85rem;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
+    /* Alert Box de Error */
+    .login-error-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-left: 4px solid #ef4444;
+        border-radius: 10px;
+        margin-bottom: 24px;
+        animation: fadeInSlide 0.25s ease-out;
+    }
+
+    @keyframes fadeInSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .login-error-alert svg {
+        width: 18px;
+        height: 18px;
+        color: #ef4444;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .login-error-alert span {
+        font-size: 0.82rem;
+        color: #991b1b;
+        line-height: 1.45;
+        font-weight: 500;
+    }
+
+    /* Grupos de Formulario */
+    .form-group-custom {
+        margin-bottom: 22px;
+    }
+
+    .form-label-custom {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .input-wrapper-custom {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon-box {
+        position: absolute;
+        left: 14px;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        transition: color 0.2s;
+    }
+
+    .input-wrapper-custom input {
+        width: 100%;
+        padding: 13px 14px 13px 44px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        color: #0f172a;
+        background: #f8fafc;
+        outline: none;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .input-wrapper-custom input::placeholder {
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .input-wrapper-custom input:focus {
+        background: #ffffff;
+        border-color: #00c851;
+        box-shadow: 0 0 0 4px rgba(0, 200, 81, 0.12);
+    }
+
+    .input-wrapper-custom input:focus + .input-icon-box,
+    .input-wrapper-custom:focus-within .input-icon-box {
+        color: #00c851;
+    }
+
+    .input-hint-text {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+
+    /* Botón de Enviar */
+    .btn-submit-login {
+        width: 100%;
+        margin-top: 8px;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #00c851 0%, #00a844 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 8px 20px -4px rgba(0, 200, 81, 0.4);
+        transition: all 0.2s ease;
+    }
+
+    .btn-submit-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -4px rgba(0, 200, 81, 0.5);
+    }
+
+    .btn-submit-login:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(0, 200, 81, 0.3);
+    }
+
+    .btn-submit-login svg {
+        transition: transform 0.2s ease;
+    }
+
+    .btn-submit-login:hover svg {
+        transform: translateX(3px);
+    }
+
+    /* ── Responsive Mobile ─────────────────────────────────────────────── */
+    @media (max-width: 820px) {
+        .login-card {
+            grid-template-columns: 1fr;
+            max-width: 440px;
+            border-radius: 20px;
+        }
+
+        .login-brand-panel {
+            padding: 36px 24px;
+        }
+
+        .login-form-panel {
+            padding: 38px 28px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-ambient-glow">
+    <div class="ambient-circle-1"></div>
+    <div class="ambient-circle-2"></div>
+</div>
+
+<div class="login-viewport">
+    <div class="login-card" id="loginCard">
+        
+        <!-- ── LADO IZQUIERDO: BRANDING INSTITUCIONAL SAO6 ───────────────── -->
+        <div class="login-brand-panel">
+            <div class="brand-header-badge">
+                <div class="brand-logo-wrap">
+                    <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="SAO6 S.A.S." onerror="this.src='/static/assets/logo_sao6.png.ico'">
+                </div>
+                <div>
+                    <div class="brand-name">SAO6<span>Calc</span></div>
+                    <div class="brand-sub">SISTEMA ALIMENTADOR ORIENTAL S.A.S.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── LADO DERECHO: FORMULARIO CORREO + CÉDULA ──────────────────── -->
+        <div class="login-form-panel">
+            <div class="form-header-box">
+                <h2 class="form-main-title">Iniciar Sesión</h2>
+                <p class="form-main-sub">Ingresa con tu correo institucional y tu número de cédula registrado.</p>
+            </div>
+
+            {% if error_mensaje %}
+            <div class="login-error-alert" id="loginAlertBox" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{{ error_mensaje }}</span>
+            </div>
+            {% endif %}
+
+            <form action="{% url 'calculator:login' %}" method="POST" id="formLoginUsuario" autocomplete="on">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <!-- Campo Correo Electrónico -->
+                <div class="form-group-custom">
+                    <label for="inputCorreo" class="form-label-custom">Correo Institucional</label>
+                    <div class="input-wrapper-custom">
+                        <span class="input-icon-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </span>
+                        <input 
+                            type="email" 
+                            name="correo" 
+                            id="inputCorreo" 
+                            placeholder="ejemplo: natalia.ospina@sao6.com.co" 
+                            required 
+                            autofocus 
+                            autocomplete="email"
+                        />
+                    </div>
+                    <div class="input-hint-text">Dirección de correo electrónico asociada a tu perfil en SAO6.</div>
+                </div>
+
+                <!-- Campo Cédula -->
+                <div class="form-group-custom">
+                    <label for="inputCedula" class="form-label-custom">Número de Cédula</label>
+                    <div class="input-wrapper-custom">
+                        <span class="input-icon-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            name="cedula" 
+                            id="inputCedula" 
+                            placeholder="ejemplo: 1020304050" 
+                            required 
+                            inputmode="numeric"
+                            autocomplete="username"
+                        />
+                    </div>
+                    <div class="input-hint-text">Documento de identidad nacional sin puntos ni guiones.</div>
+                </div>
+
+                <!-- Botón de Envío -->
+                <button type="submit" class="btn-submit-login" id="btnSubmitLogin">
+                    <span>Ingresar al Sistema</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

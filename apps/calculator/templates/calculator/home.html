@@ -1,0 +1,851 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block title %}SAO6Calc — Cotizador de Autopartes{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========================
+       HERO SECTION
+    ======================== */
+    .home-hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+        padding: 64px 0 48px;
+        min-height: calc(100vh - 65px);
+    }
+
+    @media (max-width: 768px) {
+        .home-hero {
+            grid-template-columns: 1fr;
+            padding: 40px 0 32px;
+            min-height: auto;
+        }
+
+        .hero-visual {
+            display: none;
+        }
+    }
+
+    /* Etiqueta superior "COTIZADOR DIGITAL" */
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--color-primario-soft);
+        color: var(--color-primario);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+    }
+
+    .hero-tag::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        background: var(--color-primario);
+        border-radius: 50%;
+        animation: pulse 1.8s ease infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+    }
+
+    /* Título principal del Hero */
+    .hero-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        color: var(--color-texto-dark);
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 16px;
+    }
+
+    .hero-title .accent {
+        color: var(--color-primario);
+    }
+
+    .hero-desc {
+        font-size: 0.95rem;
+        color: var(--color-texto-grey);
+        line-height: 1.7;
+        max-width: 480px;
+        margin-bottom: 36px;
+    }
+
+    /* Botones del hero */
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 28px;
+        background: var(--color-primario);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(0, 200, 81, 0.35);
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background: var(--color-primario-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 200, 81, 0.45);
+    }
+
+    .btn-primary svg {
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover svg {
+        transform: translateX(3px);
+    }
+
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: transparent;
+        color: var(--color-texto-medium);
+        border: 1.5px solid var(--color-borde);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+        border-color: var(--color-primario);
+        color: var(--color-primario);
+        background: var(--color-primario-soft);
+    }
+
+    /* Estadísticas debajo del héroe */
+    .hero-stats {
+        display: flex;
+        gap: 32px;
+        margin-top: 40px;
+        padding-top: 32px;
+        border-top: 1px solid var(--color-borde);
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--color-texto-dark);
+        letter-spacing: -0.02em;
+        line-height: 1;
+    }
+
+    .stat-number span {
+        color: var(--color-primario);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--color-texto-grey);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Visual derecha del hero */
+    .hero-visual {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .visual-card {
+        background: #ffffff;
+        border: 1px solid var(--color-borde);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--sombra-media);
+        width: 100%;
+        max-width: 400px;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-12px);
+        }
+    }
+
+    .visual-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--color-fondo-soft);
+        margin-bottom: 16px;
+    }
+
+    .visual-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--color-primario-soft);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primario);
+        font-size: 18px;
+    }
+
+    .visual-card-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--color-texto-dark);
+    }
+
+    .visual-card-subtitle {
+        font-size: 0.75rem;
+        color: var(--color-texto-grey);
+    }
+
+    .visual-parts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .visual-part-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: var(--color-fondo-app);
+        border-radius: 8px;
+        border: 1px solid var(--color-fondo-soft);
+        transition: border-color 0.2s;
+    }
+
+    .visual-part-row:hover {
+        border-color: var(--color-primario);
+    }
+
+    .visual-part-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .part-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--color-primario);
+    }
+
+    .part-dot.grey {
+        background: var(--color-borde);
+    }
+
+    .part-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-texto-dark);
+    }
+
+    .part-ref {
+        font-size: 0.7rem;
+        color: var(--color-texto-grey);
+        font-family: 'Courier New', monospace;
+    }
+
+    .part-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--color-primario);
+        background: var(--color-primario-soft);
+        padding: 2px 8px;
+        border-radius: 20px;
+        letter-spacing: 0.03em;
+    }
+
+    /* Sello de presupuesto */
+    .visual-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 14px;
+        padding: 12px 14px;
+        background: var(--color-primario);
+        border-radius: 10px;
+    }
+
+    .visual-total-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .visual-total-value {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.01em;
+    }
+
+    /* Orbe decorativo detrás de la tarjeta */
+    .visual-orb {
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(0, 200, 81, 0.12) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: -1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* ========================
+       FEATURES SECTION
+    ======================== */
+    .features-section {
+        padding: 64px 0;
+        border-top: 1px solid var(--color-borde);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .section-header .subtitulo {
+        margin-bottom: 10px;
+    }
+
+    .section-header .titulo-principal {
+        font-size: 1.8rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .feature-card {
+        background: #ffffff;
+        border: 1px solid var(--color-borde);
+        border-radius: 14px;
+        padding: 28px 24px;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--color-primario);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        transform-origin: left;
+    }
+
+    .feature-card:hover {
+        border-color: rgba(0, 200, 81, 0.3);
+        box-shadow: var(--sombra-media);
+        transform: translateY(-4px);
+    }
+
+    .feature-card:hover::after {
+        transform: scaleX(1);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--color-primario-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin-bottom: 18px;
+    }
+
+    .feature-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-texto-dark);
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+        font-size: 0.84rem;
+        color: var(--color-texto-grey);
+        line-height: 1.6;
+    }
+
+    /* ========================
+       VEHÍCULOS SECTION
+    ======================== */
+    .vehicles-section {
+        padding: 48px 0;
+    }
+
+    .vehicles-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 36px;
+    }
+
+    @media (max-width: 768px) {
+        .vehicles-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .vehicle-card {
+        background: #fff;
+        border: 1px solid var(--color-borde);
+        border-radius: 14px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vehicle-card:hover {
+        border-color: var(--color-primario);
+        box-shadow: 0 8px 30px rgba(0, 200, 81, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .vehicle-card-icon {
+        font-size: 2.2rem;
+        line-height: 1;
+    }
+
+    .vehicle-card-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--color-texto-dark);
+        letter-spacing: -0.01em;
+    }
+
+    .vehicle-card-desc {
+        font-size: 0.8rem;
+        color: var(--color-texto-grey);
+        line-height: 1.5;
+    }
+
+    .vehicle-card-arrow {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--color-primario);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        opacity: 0;
+        transform: translateX(-6px);
+        transition: all 0.2s ease;
+    }
+
+    .vehicle-card:hover .vehicle-card-arrow {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    /* ========================
+       CTA FINAL
+    ======================== */
+    .cta-section {
+        padding: 64px 0;
+    }
+
+    .cta-box {
+        background: var(--color-texto-dark);
+        border-radius: 20px;
+        padding: 56px 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-box::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(0, 200, 81, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-box::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -40px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(0, 200, 81, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-text {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin-bottom: 8px;
+    }
+
+    .cta-title .accent {
+        color: var(--color-primario);
+    }
+
+    .cta-subtitle {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.55);
+        line-height: 1.6;
+        max-width: 380px;
+    }
+
+    .cta-actions {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+    .btn-white {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 28px;
+        background: #ffffff;
+        color: var(--color-texto-dark);
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-white:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .cta-box {
+            flex-direction: column;
+            padding: 36px 24px;
+            text-align: center;
+        }
+
+        .cta-subtitle {
+            max-width: 100%;
+        }
+    }
+
+    /* Footer */
+    .home-footer {
+        padding: 24px 0;
+        border-top: 1px solid var(--color-borde);
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--color-texto-grey);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================
+     HERO SECTION
+======================== -->
+<section class="home-hero">
+    <!-- Columna izquierda: texto -->
+    <div class="hero-content">
+        <div class="hero-tag">
+            ✦ Cotizador Digital de Autopartes
+        </div>
+
+        <h2 class="hero-title">
+            Cotiza tus piezas<br>de forma <span class="accent">rápida<br>y precisa.</span>
+        </h2>
+
+        <p class="hero-desc">
+            Selecciona la vista del vehículo, toca la pieza que necesitas y obtén al instante
+            la referencia y descripción. Conectado directamente al inventario de almacén.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{% url 'calculator:index' %}" class="btn-primary">
+                Empezar a Cotizar
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+            <a href="#como-funciona" class="btn-ghost">
+                ¿Cómo funciona?
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number">4<span>+</span></span>
+                <span class="stat-label">Vistas del vehículo</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">500<span>+</span></span>
+                <span class="stat-label">Referencias activas</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">3<span>+</span></span>
+                <span class="stat-label">Líneas de vehículos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha: tarjeta animada -->
+    <div class="hero-visual">
+        <div class="visual-orb"></div>
+        <div class="visual-card">
+            <div class="visual-card-header">
+                <div class="visual-icon">🔧</div>
+                <div>
+                    <div class="visual-card-title">Tu Cotización</div>
+                    <div class="visual-card-subtitle">Runner — Vista Izquierda</div>
+                </div>
+            </div>
+            <div class="visual-parts-list">
+                <div class="visual-part-row">
+                    <div class="visual-part-left">
+                        <div class="part-dot"></div>
+                        <div>
+                            <div class="part-name">Bomper delantero</div>
+                            <div class="part-ref">RCEX0065</div>
+                        </div>
+                    </div>
+                    <span class="part-badge">Seleccionado</span>
+                </div>
+                <div class="visual-part-row">
+                    <div class="visual-part-left">
+                        <div class="part-dot"></div>
+                        <div>
+                            <div class="part-name">Espejo retrovisor</div>
+                            <div class="part-ref">RCEX0230</div>
+                        </div>
+                    </div>
+                    <span class="part-badge">Seleccionado</span>
+                </div>
+                <div class="visual-part-row">
+                    <div class="visual-part-left">
+                        <div class="part-dot grey"></div>
+                        <div>
+                            <div class="part-name" style="color: var(--color-texto-grey);">Parabrisas</div>
+                            <div class="part-ref">RCEX0124</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-total">
+                <span class="visual-total-label">2 piezas seleccionadas</span>
+                <span class="visual-total-value">Solicitar →</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================
+     FEATURES SECTION
+======================== -->
+<section class="features-section" id="como-funciona">
+    <div class="section-header">
+        <p class="subtitulo" style="color: var(--color-primario);">¿CÓMO FUNCIONA?</p>
+        <h2 class="titulo-principal">Simple, visual y preciso</h2>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🚌</div>
+            <div class="feature-title">Selecciona el vehículo</div>
+            <p class="feature-desc">Elige entre las líneas Runner, NPR o Agrale. Cada vehículo tiene su propio diagrama
+                interactivo.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👆</div>
+            <div class="feature-title">Toca la pieza</div>
+            <p class="feature-desc">Navega por las vistas (frontal, posterior, lateral) y toca directamente la parte que
+                necesitas cotizar.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <div class="feature-title">Obtén la referencia</div>
+            <p class="feature-desc">Al instante ves la referencia exacta y descripción de la pieza, lista para consultar
+                al almacén.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========================
+     VEHÍCULOS SECTION
+======================== -->
+<section class="vehicles-section">
+    <div class="section-header">
+        <p class="subtitulo" style="color: var(--color-primario);">CATÁLOGO</p>
+        <h2 class="titulo-principal">Líneas de vehículos disponibles</h2>
+    </div>
+
+    <div class="vehicles-grid">
+        <a href="{% url 'calculator:index' %}" class="vehicle-card">
+            <div class="vehicle-card-icon">🚐</div>
+            <div class="vehicle-card-name">Runner</div>
+            <p class="vehicle-card-desc">Línea estándar de transporte. Diagrama completo con todas las vistas
+                disponibles.</p>
+            <div class="vehicle-card-arrow">
+                Cotizar
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </a>
+        <a href="{% url 'calculator:index' %}" class="vehicle-card">
+            <div class="vehicle-card-icon">🚛</div>
+            <div class="vehicle-card-name">NPR</div>
+            <p class="vehicle-card-desc">Camión de carga media. Referenciado con identificadores de catálogo oficial.
+            </p>
+            <div class="vehicle-card-arrow">
+                Cotizar
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </a>
+        <a href="{% url 'calculator:index' %}" class="vehicle-card">
+            <div class="vehicle-card-icon">🚌</div>
+            <div class="vehicle-card-name">Agrale</div>
+            <p class="vehicle-card-desc">Vehículos de servicio especial. Piezas organizadas por zonas de carrocería.</p>
+            <div class="vehicle-card-arrow">
+                Cotizar
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- ========================
+     CTA SECTION
+======================== -->
+<section class="cta-section">
+    <div class="cta-box">
+        <div class="cta-text">
+            <h3 class="cta-title">
+                ¿Listo para cotizar<br>con <span class="accent">precisión</span>?
+            </h3>
+            <p class="cta-subtitle">
+                Abre el cotizador interactivo, selecciona las piezas que necesitas y genera tu lista de repuestos en
+                segundos.
+            </p>
+        </div>
+        <div class="cta-actions">
+            <a href="{% url 'calculator:index' %}" class="btn-white">
+                Abrir Cotizador
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer mínimo -->
+<footer class="home-footer">
+    <p>© 2026 SAO6Calc · Cotizador Digital de Autopartes</p>
+</footer>
+
+{% endblock %}

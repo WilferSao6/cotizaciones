@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Calculadora de Autopartes{% endblock %}</title>
+    <!-- Google Fonts: Inter con todos los pesos necesarios -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Estilos Premium Base -->
+    <link rel="stylesheet" href="{% static 'theme/css/style.css' %}?v=20261020_5">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% block header %}
+    <header style="
+        background: #ffffff;
+        border-bottom: 1px solid #e4e6ef;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    ">
+        <div class="container"
+            style="padding-top: 14px; padding-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <!-- Logo institucional SAO6 -->
+            <a href="{% url 'calculator:home' %}" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{% static 'assets/logo_sao6.png.ico' %}" alt="Logo SAO6" style="height: 34px; width: auto; object-fit: contain; border-radius: 6px;" />
+                <h1 class="titulo-principal"
+                    style="margin: 0; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; color: var(--color-texto-dark);">
+                    SAO6<span style="color: var(--color-primario);">Calc</span>
+                </h1>
+            </a>
+            <nav style="display: flex; align-items: center; gap: 18px;">
+                <a href="{% url 'calculator:home' %}"
+                    style="text-decoration: none; color: var(--color-texto-grey); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.02em; text-transform: uppercase;">Inicio</a>
+                <a href="{% url 'calculator:lista_cotizaciones' %}"
+                    style="text-decoration: none; color: var(--color-texto-grey); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.02em; text-transform: uppercase;">Cotizaciones</a>
+                <a href="{% url 'calculator:index' %}" style="
+                    display: inline-block;
+                    text-decoration: none;
+                    background: var(--color-primario-soft);
+                    color: var(--color-primario);
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    transition: background 0.2s;
+                ">Calculadora</a>
+
+                {% if user.is_authenticated %}
+                <div style="display: flex; align-items: center; gap: 10px; margin-left: 8px; padding-left: 14px; border-left: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 7px;">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #e8f5e9; color: var(--color-primario); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; border: 1.5px solid #c8e6c9;">
+                            {{ user.perfil.nombre|default:user.username|slice:":1"|upper }}
+                        </div>
+                        <span style="font-size: 0.82rem; font-weight: 600; color: #1e293b;" title="CC: {{ user.perfil.cedula|default:'N/A' }}">
+                            {{ user.perfil.nombre|default:user.get_full_name|default:user.username }}
+                        </span>
+                    </div>
+                    <a href="{% url 'calculator:logout' %}" style="text-decoration: none; color: #dc2626; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 6px; background: #fef2f2; border: 1px solid #fecaca; transition: all 0.2s;" title="Cerrar sesión">
+                        Salir ➔
+                    </a>
+                </div>
+                {% else %}
+                <a href="{% url 'calculator:login' %}" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    text-decoration: none;
+                    background: #1e293b;
+                    color: #ffffff;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    letter-spacing: 0.04em;
+                    text-transform: uppercase;
+                    padding: 5px 14px;
+                    border-radius: 20px;
+                    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.2);
+                    transition: all 0.2s;
+                ">
+                    <span>Acceder</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    {% endblock header %}
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Modal global para visualización de partes -->
+    <div class="modal-overlay" id="partModal">
+        <div class="modal-content">
+            <h2 class="titulo-principal" id="modalTitle">Detalle de Parte</h2>
+            <p class="subtitulo" id="modalDesc">Cargando información...</p>
+            <div style="margin-top: 20px;">
+                <input type="text" class="input-premium" placeholder="Cotización aproximada" id="modalPrice" readonly>
+            </div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                <button class="boton-premium" onclick="closeModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Premium -->
+    <script>
+        function openModal(title, desc, price) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('modalPrice').value = price;
+            document.getElementById('partModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('partModal').classList.remove('active');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

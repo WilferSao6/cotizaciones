@@ -1,0 +1,189 @@
+:root {
+  /* Paleta SAOS-Bitácora — Verde brillante como color primario */
+  --vs-primary-raw: 0, 200, 81;
+  --color-primario: #00C851;
+  --color-primario-hover: #00a844;
+  --color-primario-soft: rgba(0, 200, 81, 0.1);
+
+  /* Fondos y superficies */
+  --color-fondo-app: #f5f6fa;
+  --color-fondo-soft: #eef0f5;
+  --color-fondo-card: #ffffff;
+
+  /* Textos */
+  --color-texto-dark: #1a1a2e;
+  --color-texto-medium: #3d3d5c;
+  --color-texto-grey: #8a8fa8;
+
+  /* Bordes */
+  --color-borde: #e4e6ef;
+
+  /* Radios de borde — más planos como en el diseño referencia */
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+
+  /* Sombras */
+  --sombra-suave: 0 2px 12px rgba(26, 26, 46, 0.06);
+  --sombra-media: 0 4px 24px rgba(26, 26, 46, 0.10);
+}
+
+/* Reset Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-fondo-app);
+  color: var(--color-texto-dark);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* Layout Utilidades */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- Componentes Premium --- */
+
+/* Inputs Premium */
+.input-premium {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--color-fondo-soft);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-texto-dark);
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input-premium::placeholder {
+  color: var(--color-texto-grey);
+}
+
+.input-premium:focus {
+  background: #fff;
+  border-color: var(--color-primario);
+  box-shadow: 0px 5px 20px 0px rgba(var(--vs-primary-raw), 0.15);
+  transform: translateY(-2px);
+}
+
+/* Botones Premium */
+.boton-premium {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--color-primario);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 200, 81, 0.3);
+  transition: all 0.2s ease;
+}
+
+.boton-premium:hover {
+  background: var(--color-primario-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 200, 81, 0.4);
+}
+
+.boton-premium:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+/* Modales / Glassmorphism */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: var(--border-radius-lg);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+    0 15px 30px -5px rgba(0, 0, 0, 0.2);
+  transform: scale(0.8);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+/* Tipografía Utils */
+.titulo-principal {
+  font-weight: 800;
+  font-size: 1.75rem;
+  margin-bottom: 8px;
+  color: var(--color-texto-dark);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.titulo-principal .highlight {
+  color: var(--color-primario);
+}
+
+.subtitulo {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-texto-grey);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Etiqueta tipo badge verde */
+.badge-verde {
+  display: inline-block;
+  background: var(--color-primario-soft);
+  color: var(--color-primario);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+}

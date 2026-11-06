@@ -1,0 +1,1075 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block title %}Cotizaciones | SAO6 S.A.S.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Contenedor General ── */
+    .quotes-wrapper {
+        margin: 24px 0 60px 0;
+    }
+
+    /* ── Encabezado y Acciones Principales ── */
+    .quotes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .quotes-title-group h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--color-texto-dark);
+        letter-spacing: -0.02em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .quotes-title-group p {
+        color: var(--color-texto-grey);
+        font-size: 0.9rem;
+        margin: 4px 0 0 0;
+    }
+
+    /* ── Tarjetas de Indicadores KPI ── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius-md);
+        padding: 16px 18px;
+        box-shadow: var(--sombra-suave);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--sombra-media);
+    }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-texto-grey);
+        margin-bottom: 4px;
+    }
+
+    .kpi-value {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--color-texto-dark);
+        line-height: 1.2;
+    }
+
+    .kpi-subtext {
+        font-size: 0.75rem;
+        color: var(--color-texto-grey);
+        margin-top: 4px;
+    }
+
+    /* ── Barra de Alerta de Permisos ── */
+    .permission-alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 22px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .permission-alert.authorized {
+        background: rgba(0, 200, 81, 0.10);
+        border: 1px solid rgba(0, 200, 81, 0.30);
+        color: #007a31;
+    }
+
+    .permission-alert.readonly {
+        background: rgba(245, 158, 11, 0.10);
+        border: 1px solid rgba(245, 158, 11, 0.30);
+        color: #92400e;
+    }
+
+    /* ── Barra de Búsqueda y Filtros ── */
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 11px 14px 11px 38px;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius-sm);
+        font-size: 0.88rem;
+        background: #ffffff;
+        outline: none;
+        box-shadow: var(--sombra-suave);
+        transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 3px rgba(0, 200, 81, 0.15);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        color: var(--color-texto-grey);
+    }
+
+    /* ── GRID DE TARJETAS (CARD LAYOUT) ── */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+        gap: 22px;
+    }
+
+    /* ── Estructura de la Tarjeta Individual ── */
+    .quote-card {
+        background: #ffffff;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--sombra-suave);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+        position: relative;
+    }
+
+    .quote-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 28px rgba(26, 26, 46, 0.09);
+        border-color: #cbd5e1;
+    }
+
+    /* Cabecera de la Card */
+    .card-header {
+        padding: 18px 20px 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f1f5f9;
+        background: #ffffff;
+    }
+
+    .badge-consecutive {
+        font-family: monospace;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #007a31;
+        background: rgba(0, 200, 81, 0.12);
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+    }
+
+    /* Chips de Tipología */
+    .badge-tipologia {
+        display: inline-block;
+        font-weight: 700;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+
+    .badge-tipologia.runner {
+        background: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+    }
+
+    .badge-tipologia.npr {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-tipologia.agrale {
+        background: #f3e8ff;
+        color: #6b21a8;
+        border: 1px solid #e9d5ff;
+    }
+
+    /* Badges de Severidad Condicional (Regla SAO6: 2 SMMLV = $2.847.000 COP) */
+    .badge-severidad {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.70rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+    }
+
+    .badge-severidad.leve {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-severidad.gravisimo {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    /* Cuerpo de la Card */
+    .card-body {
+        padding: 18px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .bus-fleet-row {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .bus-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--color-texto-dark);
+        font-family: monospace;
+        background: var(--color-fondo-soft);
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Pila de Auditoría (Creador y Editor) */
+    .card-audit-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: -4px;
+        margin-bottom: 2px;
+    }
+
+    .audit-row {
+        font-size: 0.75rem;
+        color: var(--color-texto-grey);
+        font-style: italic;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        line-height: 1.35;
+    }
+
+    .audit-row strong {
+        font-style: normal;
+        font-weight: 600;
+        color: var(--color-texto-dark);
+    }
+
+    .audit-row.creator-row {
+        color: #475569;
+    }
+
+    .audit-row.editor-row {
+        color: #b45309;
+    }
+
+    .audit-row .audit-icon {
+        font-style: normal;
+        font-size: 0.85rem;
+    }
+
+    .price-breakdown-subtext {
+        font-size: 0.76rem;
+        color: var(--color-texto-grey);
+        margin-top: 3px;
+        line-height: 1.35;
+    }
+
+    /* Caja Destacada de Valor Total */
+    .card-price-hero {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius-sm);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .price-hero-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-texto-grey);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .price-hero-amount {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--color-texto-dark);
+        letter-spacing: -0.01em;
+    }
+
+    .price-edited-pill {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #fde68a;
+    }
+
+    /* Pie y Botones de Acción de la Card */
+    .card-footer {
+        padding: 12px 16px 16px 16px;
+        border-top: 1px solid #f1f5f9;
+        background: #ffffff;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .btn-card {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 8px;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.77rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    /* Botón Editar */
+    .btn-card.btn-edit {
+        background: #f0f9ff;
+        color: #0369a1;
+        border-color: #bae6fd;
+    }
+
+    .btn-card.btn-edit:hover {
+        background: #e0f2fe;
+        color: #0284c7;
+        transform: translateY(-1px);
+    }
+
+    /* Botón Vista Previa (Reemplaza 'Detalle') */
+    .btn-card.btn-preview {
+        background: rgba(0, 200, 81, 0.10);
+        color: #007a31;
+        border-color: rgba(0, 200, 81, 0.30);
+    }
+
+    .btn-card.btn-preview:hover {
+        background: rgba(0, 200, 81, 0.20);
+        color: #005a24;
+        transform: translateY(-1px);
+    }
+
+    /* Botón Descargar PDF (Verde Brillante Corporativo SAO6) */
+    .btn-card.btn-pdf {
+        background: var(--color-primario);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 8px rgba(0, 200, 81, 0.28);
+    }
+
+    .btn-card.btn-pdf:hover {
+        background: var(--color-primario-hover);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(0, 200, 81, 0.38);
+        transform: translateY(-1px);
+    }
+
+    .btn-card.btn-pdf:active {
+        transform: scale(0.97);
+    }
+
+    /* Botón Eliminar */
+    .btn-card.btn-delete {
+        background: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .btn-card.btn-delete:hover {
+        background: #fee2e2;
+        color: #dc2626;
+        transform: translateY(-1px);
+    }
+
+    /* Estado Vacío */
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 70px 20px;
+        background: #ffffff;
+        border: 1px dashed var(--color-borde);
+        border-radius: var(--border-radius-lg);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: var(--color-texto-grey);
+        margin-bottom: 12px;
+    }
+
+    /* ── Modal Vista Previa PDF (Idéntico a la Calculadora) ────────── */
+    #pdfPreviewModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    #pdfPreviewModal.open {
+        display: flex;
+        animation: fadeInModal 0.2s ease;
+    }
+
+    @keyframes fadeInModal {
+        from {
+            opacity: 0;
+            transform: scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .pdf-modal-box {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        width: 100%;
+        max-width: 860px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .pdf-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--color-borde);
+        background: var(--color-fondo-soft);
+    }
+
+    .pdf-modal-header h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--color-texto-dark);
+        font-weight: 700;
+    }
+
+    .pdf-modal-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .pdf-modal-actions button {
+        padding: 7px 16px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .btn-download-modal {
+        background: var(--color-primario);
+        color: #fff;
+    }
+
+    .btn-download-modal:hover {
+        filter: brightness(1.1);
+    }
+
+    .btn-close-modal {
+        background: #f1f2f5;
+        color: var(--color-texto-dark);
+    }
+
+    .btn-close-modal:hover {
+        background: #e2e4ea;
+    }
+
+    #pdfIframe {
+        width: 100%;
+        flex: 1;
+        border: none;
+        min-height: 520px;
+        height: 75vh;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div style="display: none;">{% csrf_token %}</div>
+<div class="quotes-wrapper">
+
+    <!-- ── 1. Encabezado de Sección ──────────────────────────────────────── -->
+    <div class="quotes-header">
+        <div class="quotes-title-group">
+            <h2>Historial de Cotizaciones</h2>
+        </div>
+        <div class="quotes-top-actions">
+            <a href="{% url 'calculator:index' %}" class="boton-premium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Nueva Cotización
+            </a>
+        </div>
+    </div>
+
+    <!-- ── 3. Indicadores Rápidos (KPIs) ─────────────────────────────────── -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Cotizaciones en Base de Datos</div>
+                <div class="kpi-value" id="kpiTotalCards">{{ total_registros }}</div>
+            </div>
+            <div class="kpi-subtext">Persistencia relacional MySQL (SAO6)</div>
+        </div>
+
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Umbral Aseguradora</div>
+                <div class="kpi-value" style="font-size: 1.25rem; color: #0284c7;">$ 2.847.000 COP</div>
+            </div>
+            <div class="kpi-subtext">2 SMMLV de referencia (Colombia)</div>
+        </div>
+
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Estructura Financiera</div>
+                <div class="kpi-value" style="font-size: 1.25rem; color: var(--color-primario);">+35% AI | +30% MO</div>
+            </div>
+            <div class="kpi-subtext">Directriz de liquidación SAO6</div>
+        </div>
+    </div>
+
+    <!-- ── 4. Barra de Búsqueda Dinámica ─────────────────────────────────── -->
+    <div class="toolbar-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="cardSearchInput" placeholder="Buscar por consecutivo, bus, tipología o creador..." onkeyup="filterCards()">
+        </div>
+        <div style="font-size: 0.82rem; color: var(--color-texto-grey);">
+            Mostrando <strong id="visibleCardsCount">{{ total_registros }}</strong> cotizaciones
+        </div>
+    </div>
+
+    <!-- ── 5. GRID DE TARJETAS (LOOP PRINCIPAL CON ATRIBUTOS data-*) ─────── -->
+    <div class="cards-grid" id="cardsContainer">
+        {% for cotizacion in cotizaciones %}
+        <!-- 
+            TARJETA INDIVIDUAL:
+            Los datos técnicos se inyectan en atributos data-* nativos de HTML5.
+            Permanecen invisibles en la UI pero completamente accesibles para JavaScript.
+        -->
+        <div class="quote-card" 
+             id="card-{{ cotizacion.id }}"
+             data-id="{{ cotizacion.id }}"
+             data-id-cotizacion="{{ cotizacion.id_cotizacion }}"
+             data-tipologia="{{ cotizacion.tipologia }}"
+             data-numero-bus="{{ cotizacion.numero_bus }}"
+             data-id-pieza="{{ cotizacion.id_pieza }}"
+             data-pieza="{{ cotizacion.pieza }}"
+             data-valor-original="{{ cotizacion.valor_pieza }}"
+             data-valor-editado="{{ cotizacion.valor_pieza_editada|default:'' }}"
+             data-valor-total="{{ cotizacion.valor_total_liquidado }}"
+             data-usuario-creador="{{ cotizacion.usuario_creador }}"
+             data-usuario-editor="{{ cotizacion.usuario_editor|default:'' }}"
+             data-timestamp="{{ cotizacion.timestamp }}"
+             data-timestamp-editor="{{ cotizacion.timestamp_editor|default:'' }}">
+            
+            <!-- Cabecera Visual de la Card -->
+            <div class="card-header">
+                <span class="badge-consecutive">COT-{{ cotizacion.id_cotizacion }}</span>
+                
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <!-- Badge de Severidad Condicional (Regla SAO6: 2 SMMLV = $2.847.000 COP) -->
+                    {% if cotizacion.valor_pieza_vigente >= 2847000 %}
+                        <span class="badge-severidad gravisimo" title="Costo repuestos mayor o igual a 2 SMMLV ($2.847.000 COP) - Se cobra a la aseguradora">GRAVISIMO</span>
+                    {% else %}
+                        <span class="badge-severidad leve" title="Costo repuestos menor a 2 SMMLV ($2.847.000 COP) - No se cobra a aseguradora">LEVE</span>
+                    {% endif %}
+
+                    {% if cotizacion.tipologia|lower == 'runner' %}
+                        <span class="badge-tipologia runner">Runner</span>
+                    {% elif cotizacion.tipologia|lower == 'npr' %}
+                        <span class="badge-tipologia npr">NPR</span>
+                    {% elif cotizacion.tipologia|lower == 'agrale' %}
+                        <span class="badge-tipologia agrale">Agrale</span>
+                    {% else %}
+                        <span class="badge-tipologia">{{ cotizacion.tipologia }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Cuerpo Visual Principal -->
+            <div class="card-body">
+                <div class="bus-fleet-row">
+                    <div class="bus-tag">
+                        🚌 {{ cotizacion.numero_bus }}
+                    </div>
+                    {% if cotizacion.id_pieza %}
+                    <div class="bus-tag" style="background: #f8fafc; color: #475569; border-color: #cbd5e1; font-weight: 600;" title="ID de la pieza / Referencia">
+                        🔧 Ref: {{ cotizacion.id_pieza }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Bloque de Auditoría: Usuario Creador y Usuario Editor -->
+                <div class="card-audit-stack">
+                    <div class="audit-row creator-row">
+                        <span class="audit-icon">👤</span>
+                        <span>Creado por: <strong>{{ cotizacion.usuario_creador }}</strong> el {{ cotizacion.timestamp }}</span>
+                    </div>
+
+                    {% if cotizacion.usuario_editor %}
+                    <div class="audit-row editor-row">
+                        <span class="audit-icon">✍️</span>
+                        <span>Modificado por: <strong>{{ cotizacion.usuario_editor }}</strong> el {{ cotizacion.timestamp_editor }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Caja Financiera Destacada (Muestra Valor Total con 35% AI y 30% MO) -->
+                <div class="card-price-hero">
+                    <div class="price-hero-label">
+                        <span>VALOR TOTAL LIQUIDADO</span>
+                        {% if cotizacion.valor_pieza_editada %}
+                        <span class="price-edited-pill">Editado</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="price-hero-amount">
+                        $ {{ cotizacion.valor_total_liquidado|floatformat:0 }} <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-texto-grey);">COP</span>
+                    </div>
+
+                    <div class="price-breakdown-subtext">
+                        <span>Subtotal repuestos: $ {{ cotizacion.valor_pieza_vigente|floatformat:0 }} COP</span>
+                        {% if cotizacion.valor_pieza_editada %}
+                        <div style="font-size: 0.72rem; color: var(--color-texto-grey); margin-top: 2px;">
+                            Subtotal base original: $ {{ cotizacion.valor_pieza|floatformat:0 }} COP
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción Renovados -->
+            <div class="card-footer">
+                <!-- 1. Botón Editar: Enlace a la calculadora pasando editar_id en la URL -->
+                <a href="{% url 'calculator:index' %}?editar_id={{ cotizacion.id }}" class="btn-card btn-edit" title="Editar en la calculadora">
+                    ✏️ Editar
+                </a>
+
+                <!-- 2. Botón Vista Previa: Conexión estricta a verVistaPrevia -->
+                <button type="button" class="btn-card btn-preview" title="Vista previa de la cotización" onclick="verVistaPrevia('{{ cotizacion.id }}')">
+                    👁 Vista previa
+                </button>
+
+                <!-- 3. Botón Descargar PDF: Conexión estricta a descargarPDFDirecto -->
+                <button type="button" class="btn-card btn-pdf" title="Descargar cotización en PDF" onclick="descargarPDFDirecto('{{ cotizacion.id }}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Descargar PDF
+                </button>
+
+                <!-- 4. Botón Eliminar: Remueve la tarjeta -->
+                <button type="button" class="btn-card btn-delete" title="Eliminar cotización" onclick="handleDeleteQuote('{{ cotizacion.id }}', '{{ cotizacion.id_cotizacion }}')">
+                    🗑️ Eliminar
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Estado Vacío -->
+        <div class="empty-state">
+            <div class="empty-state-icon">📂</div>
+            <h4 style="color: var(--color-texto-dark); font-size: 1.15rem; margin-bottom: 6px;">No hay cotizaciones registradas</h4>
+            <p style="color: var(--color-texto-grey); font-size: 0.85rem; margin-bottom: 20px;">
+                Selecciona repuestos sobre el diagrama vehicular en la calculadora interactiva para generar cotizaciones.
+            </p>
+            <a href="{% url 'calculator:index' %}" class="boton-premium">Ir a la Calculadora</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── MODAL VISTA PREVIA PDF (IDÉNTICO AL DE LA CALCULADORA) ──────────── -->
+<div id="pdfPreviewModal">
+    <div class="pdf-modal-box">
+        <div class="pdf-modal-header">
+            <h4>📄 Vista Previa</h4>
+            <div class="pdf-modal-actions">
+                <button class="btn-download-modal" id="btnDownloadFromModal" onclick="descargarPDFDesdeModal()">
+                    ⬇ Descargar PDF
+                </button>
+                <button class="btn-close-modal" onclick="closePDFModal()">
+                    ✕ Cerrar
+                </button>
+            </div>
+        </div>
+        <iframe id="pdfIframe" title="Vista Previa PDF"></iframe>
+    </div>
+</div>
+
+<!-- ── INYECCIÓN SEGURA DE DATOS DESDE DJANGO (json_script) ─────────────── -->
+{{ cotizaciones|json_script:"cotizacionesData" }}
+
+<script>
+    const STATIC_BASE_URL = "{% static 'assets/' %}";
+    const SAO6_LOGO_URL = "{% static 'assets/logo_sao6.png.ico' %}";
+</script>
+<script type="module" src="{% static 'theme/js/pdfGenerator.js' %}?v=20261028_4"></script>
+
+<!-- ── JAVASCRIPT: MANEJO DE VISTA PREVIA, DESCARGA Y FILTROS ─────────────── -->
+<script>
+    let currentPreviewQuoteId = null;
+
+    // Mapa en memoria de cotizaciones cargadas desde el backend
+    const RAW_COTIZACIONES = JSON.parse(document.getElementById('cotizacionesData')?.textContent || '[]') || [];
+    const COTIZACIONES_MAP = {};
+    RAW_COTIZACIONES.forEach(c => {
+        COTIZACIONES_MAP[String(c.id)] = c;
+    });
+
+    /**
+     * Extrae o sintetiza la estructura de repuestos para alimentar a jsPDF
+     */
+    function getQuoteParts(cotizacion) {
+        if (cotizacion.piezas_detalle && Object.keys(cotizacion.piezas_detalle).length > 0) {
+            return cotizacion.piezas_detalle;
+        }
+
+        const valorSubtotal = Number(cotizacion.valor_pieza_editada || cotizacion.valor_pieza || 0);
+
+        return [{
+            id: 'REP-01',
+            baseId: 'REP-01',
+            code: 'REP-01',
+            name: cotizacion.pieza || 'Repuesto general de carrocería',
+            qty: 1,
+            price: valorSubtotal
+        }];
+    }
+
+    /**
+     * Acción: Renderizar Vista Previa de la Cotización en el Modal
+     */
+    async function verVistaPrevia(id) {
+        const cotizacion = COTIZACIONES_MAP[String(id)];
+        if (!cotizacion) {
+            alert('No se encontró la información de la cotización seleccionada.');
+            return;
+        }
+        currentPreviewQuoteId = id;
+
+        try {
+            const parts = getQuoteParts(cotizacion);
+            const tipologia = cotizacion.tipologia || 'Runner';
+            const quoteNumber = cotizacion.id_cotizacion ? `COT-${cotizacion.id_cotizacion}` : `COT-${cotizacion.id}`;
+            const quoteUser = cotizacion.usuario_editor || cotizacion.usuario_creador || 'Natalia Ospina';
+            const quoteDate = cotizacion.timestamp_editor || cotizacion.timestamp || null;
+            const busNumber = cotizacion.numero_bus || null;
+
+            // Esperar inicialización del módulo de PDF si es necesario
+            if (typeof window.getQuotePDFBlobUrl !== 'function') {
+                for (let i = 0; i < 15; i++) {
+                    await new Promise(r => setTimeout(r, 100));
+                    if (typeof window.getQuotePDFBlobUrl === 'function') break;
+                }
+            }
+
+            if (typeof window.getQuotePDFBlobUrl !== 'function') {
+                throw new Error('El motor de generación jsPDF no está disponible aún.');
+            }
+
+            const { blobUrl } = await window.getQuotePDFBlobUrl({
+                parts: parts,
+                vehicleType: tipologia,
+                quoteNumber: quoteNumber,
+                quoteDate: quoteDate,
+                quoteUser: quoteUser,
+                busNumber: busNumber
+            });
+
+            const iframe = document.getElementById('pdfIframe');
+            const modal = document.getElementById('pdfPreviewModal');
+
+            if (iframe && modal) {
+                if (iframe.dataset.blobUrl) {
+                    URL.revokeObjectURL(iframe.dataset.blobUrl);
+                }
+                iframe.dataset.blobUrl = blobUrl;
+                iframe.src = blobUrl;
+                modal.classList.add('open');
+                document.addEventListener('keydown', handleEscPdf);
+            }
+        } catch (err) {
+            console.error('Error al generar vista previa del PDF:', err);
+            alert('No se pudo generar la vista previa del documento PDF.');
+        }
+    }
+
+    /**
+     * Acción: Descarga Directa Física del PDF de la Cotización
+     */
+    async function descargarPDFDirecto(id) {
+        const cotizacion = COTIZACIONES_MAP[String(id)];
+        if (!cotizacion) {
+            alert('No se encontró la cotización.');
+            return;
+        }
+
+        try {
+            const parts = getQuoteParts(cotizacion);
+            const tipologia = cotizacion.tipologia || 'Runner';
+            const quoteNumber = cotizacion.id_cotizacion ? `COT-${cotizacion.id_cotizacion}` : `COT-${cotizacion.id}`;
+            const quoteUser = cotizacion.usuario_editor || cotizacion.usuario_creador || 'Natalia Ospina';
+            const quoteDate = cotizacion.timestamp_editor || cotizacion.timestamp || null;
+            const busNumber = cotizacion.numero_bus || null;
+
+            if (typeof window.downloadQuotePDF !== 'function') {
+                for (let i = 0; i < 15; i++) {
+                    await new Promise(r => setTimeout(r, 100));
+                    if (typeof window.downloadQuotePDF === 'function') break;
+                }
+            }
+
+            if (typeof window.downloadQuotePDF !== 'function') {
+                throw new Error('El motor de descarga jsPDF no está disponible.');
+            }
+
+            await window.downloadQuotePDF({
+                parts: parts,
+                vehicleType: tipologia,
+                quoteNumber: quoteNumber,
+                quoteDate: quoteDate,
+                quoteUser: quoteUser,
+                busNumber: busNumber
+            });
+        } catch (err) {
+            console.error('Error al descargar PDF:', err);
+            alert('Ocurrió un error al compilar el archivo PDF.');
+        }
+    }
+
+    /**
+     * Acción: Descargar desde el botón interior del Modal de Vista Previa
+     */
+    function descargarPDFDesdeModal() {
+        if (currentPreviewQuoteId) {
+            descargarPDFDirecto(currentPreviewQuoteId);
+        }
+    }
+
+    /**
+     * Cierra el Modal y libera el Blob de memoria
+     */
+    function closePDFModal() {
+        const modal = document.getElementById('pdfPreviewModal');
+        const iframe = document.getElementById('pdfIframe');
+
+        if (modal) {
+            modal.classList.remove('open');
+        }
+
+        if (iframe && iframe.dataset.blobUrl) {
+            URL.revokeObjectURL(iframe.dataset.blobUrl);
+            iframe.dataset.blobUrl = '';
+            iframe.src = '';
+        }
+
+        document.removeEventListener('keydown', handleEscPdf);
+    }
+
+    function handleEscPdf(e) {
+        if (e.key === 'Escape') {
+            closePDFModal();
+        }
+    }
+
+    // Puentes globales
+    window.verVistaPrevia = verVistaPrevia;
+    window.descargarPDFDirecto = descargarPDFDirecto;
+    window.descargarPDFDesdeModal = descargarPDFDesdeModal;
+    window.closePDFModal = closePDFModal;
+    window.previewPDF = verVistaPrevia;
+    window.generatePDF = descargarPDFDirecto;
+
+    /**
+     * Filtra dinámicamente las tarjetas buscando en texto visible y atributos data-*
+     */
+    function filterCards() {
+        const query = document.getElementById('cardSearchInput').value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.quote-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const visibleText = card.innerText.toLowerCase();
+            const dataBus = (card.dataset.numeroBus || '').toLowerCase();
+            const dataPiezas = (card.dataset.pieza || '').toLowerCase();
+            const dataIdPieza = (card.dataset.idPieza || '').toLowerCase();
+            const dataCreador = (card.dataset.usuarioCreador || '').toLowerCase();
+            const dataConsecutivo = (card.dataset.idCotizacion || '').toLowerCase();
+
+            const match = visibleText.includes(query) 
+                       || dataBus.includes(query) 
+                       || dataPiezas.includes(query) 
+                       || dataIdPieza.includes(query) 
+                       || dataCreador.includes(query) 
+                       || dataConsecutivo.includes(query);
+
+            if (match) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const countEl = document.getElementById('visibleCardsCount');
+        if (countEl) countEl.innerText = visibleCount;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    /**
+     * Acción: Eliminar tarjeta físicamente de MySQL con transición suave
+     */
+    async function handleDeleteQuote(id, idCotizacion) {
+        if (!confirm(`¿Estás seguro de eliminar la cotización COT-${idCotizacion}? Esta acción eliminará el registro permanentemente de la base de datos.`)) {
+            return;
+        }
+
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
+            const response = await fetch(`/cotizaciones/${id}/eliminar/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok && data.status === 'ok') {
+                const card = document.getElementById('card-' + id);
+                if (card) {
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.transform = 'scale(0.8)';
+                    card.style.opacity = '0';
+
+                    setTimeout(() => {
+                        card.remove();
+                        delete COTIZACIONES_MAP[String(id)];
+                        filterCards();
+
+                        const kpi = document.getElementById('kpiTotalCards');
+                        if (kpi) {
+                            const totalActual = document.querySelectorAll('.quote-card').length;
+                            kpi.innerText = totalActual;
+                        }
+                    }, 300);
+                }
+            } else {
+                alert(data.message || 'No se pudo eliminar la cotización de la base de datos.');
+            }
+        } catch (err) {
+            console.error('Error al eliminar:', err);
+            alert('Error de conexión al eliminar la cotización.');
+        }
+    }
+
+    // Cerrar modal al hacer clic en el backdrop
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('pdfPreviewModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closePDFModal();
+            });
+        }
+    });
+</script>
+{% endblock content %}
